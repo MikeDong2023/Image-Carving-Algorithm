@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <cassert>
+#include <fstream>
 
 using namespace std;
 
@@ -15,7 +16,7 @@ using namespace std;
 // -----
 // Sets various pixels in a 2x2 Image and checks
 // that Image_print produces the correct output.
-TEST(test_print_basic) {
+TEST(test_print) {
   Image *img = new Image; // create an Image in dynamic memory
 
   const Pixel red = {255, 0, 0};
@@ -40,8 +41,102 @@ TEST(test_print_basic) {
   correct << "0 0 255 255 255 255 \n";
   ASSERT_EQUAL(s.str(), correct.str());
 
-  delete img; // delete the Image
+  delete img; 
 }
+
+TEST(test_Image_init) {
+    Image* img = new Image;
+    Image_init(img, 100, 100);
+
+    ASSERT_EQUAL(Image_width(img), 100);
+    ASSERT_EQUAL(Image_height(img), 100);
+    ASSERT_EQUAL(Matrix_width(&img->red_channel), 100);
+    delete img;
+}
+
+TEST(test_Image_init_stream) {
+    std::ifstream input("dog.ppm");
+    Image* img = new Image;
+    Image_init(img, input);
+
+    ASSERT_EQUAL(Image_width(img), 5);
+    ASSERT_EQUAL(Image_height(img), 5);
+    ASSERT_EQUAL(*Matrix_at(&img->blue_channel, 0, 2), 250);
+    delete img;
+}
+
+TEST(test_Image_width) {
+    Image* img = new Image;
+    Image_init(img, 100, 100);
+
+    ASSERT_EQUAL(Image_width(img), 100);
+
+    delete img;
+}
+
+TEST(test_Image_height) {
+    Image* img = new Image;
+    Image_init(img, 100, 100);
+
+    ASSERT_EQUAL(Image_height(img), 100);
+
+    delete img;
+}
+
+TEST(test_Image_get_pixel) {
+    std::ifstream input("dog.ppm");
+    Image* img = new Image;
+    Image_init(img, input);
+
+    // Get the pixel color and assert that it matches the expected color
+    Pixel pixel = Image_get_pixel(img, 0, 2);
+    ASSERT_EQUAL(pixel.r, 255);
+    ASSERT_EQUAL(pixel.g, 255);
+    ASSERT_EQUAL(pixel.b, 250);
+
+    delete img;
+}
+
+TEST(test_Image_fill) {
+    Image* img = new Image;
+    Image_init(img, 5, 5);
+
+    Pixel set_color = {255, 0, 0};
+    Image_fill(img, set_color);
+
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < 5; ++j) {
+            Pixel pixel = Image_get_pixel(img, i, j);
+            ASSERT_EQUAL(pixel.r, set_color.r);
+            ASSERT_EQUAL(pixel.g, set_color.g);
+            ASSERT_EQUAL(pixel.b, set_color.b);
+        }
+    }
+
+    delete img;
+}
+
+
+TEST(test_Image_set_pixel) {
+    Image* img = new Image;
+    Image_init(img, 5, 5);
+
+    Pixel expected_color = {255, 0, 0};
+    int r = 4;
+    int c = 4;
+    Image_set_pixel(img, r, c, expected_color);
+
+    Pixel pixel = Image_get_pixel(img, r, c);
+    ASSERT_EQUAL(pixel.r, expected_color.r);
+    ASSERT_EQUAL(pixel.g, expected_color.g);
+    ASSERT_EQUAL(pixel.b, expected_color.b);
+
+    delete img;
+}
+
+
+
+// Add more test cases for other functions here
 
 // IMPLEMENT YOUR TEST FUNCTIONS HERE
 // You are encouraged to use any functions from Image_test_helpers.hpp as needed.

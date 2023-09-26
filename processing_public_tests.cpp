@@ -167,6 +167,14 @@ void test_remove_seam(const Image* img, const int seam[],
   cout << "Testing " << prefix << " remove seam..." << flush;
 
   Image* removed_img = new Image(*img);
+
+
+
+
+
+
+
+  
   remove_vertical_seam(removed_img, seam);
   write_image(removed_img, prefix + "_removed" + OUT_PPM_EXT);
 
@@ -194,8 +202,8 @@ void test_seam_carve(const Image *img, string prefix,
   load_image(carved_img_correct,
     prefix + "_" + to_string(new_width) +
     "x" + to_string(new_height) + ".correct.ppm");
-
   assert(Image_equal(carved_img, carved_img_correct));
+
   cout << "PASS" << endl;
 
   delete carved_img_correct;
